@@ -28,6 +28,8 @@ function removeUnnecessaryHeaders() {
 
 }
 
+var mpStartDate = new Date();
+var mpEndDate = new Date();
 var assignmentList = [];
 var assignmentObjectList = [];
 var categoryList = [];
@@ -68,6 +70,28 @@ function extractGradeData() {
           }
      }
 
+     // Set marking period start and end dates (shown above main grades table)
+     mpDatesRow = tablesHTMLCollec[0].getElementsByTagName("tr")[0];
+     mpDatesStr = mpDatesRow.innerHTML;
+     mpDatesStr = mpDatesStr.substring(mpDatesStr.indexOf("Marking Period"));
+     mpDatesStr = mpDatesStr.substring(0,mpDatesStr.indexOf("</span>")); 
+     
+     mpStartDateStr = mpDatesStr.split(/\s/)[2];
+     mpStartDateStr = mpStartDateStr.substring(mpStartDateStr.length - 8)
+     mpEndDateStr = mpDatesStr.split(/\s/)[4];
+     mpEndDateStr = mpEndDateStr.substring(0,8);
+
+     mpStartDateStr = mpStartDateStr.split("/");
+     mpEndDateStr = mpEndDateStr.split("/");
+
+     var today = new Date();
+     mpStartDate = new Date(parseInt((today.getFullYear()).toString().substring(0,2) + mpStartDateStr[2]), 
+                         parseInt(mpStartDateStr[0]) - 1,
+                         parseInt(mpStartDateStr[1]));
+     mpEndDate = new Date(parseInt((today.getFullYear()).toString().substring(0,2) + mpEndDateStr[2]), 
+                         parseInt(mpEndDateStr[0]) - 1,
+                         parseInt(mpEndDateStr[1]));
+
      // For reference: How to remove object from HTMLCollection _AND_ DOM (will disappear from page)
      // var toRemove = tables[0].getElementsByClassName("list");
      // while(toRemove.length > 0){
@@ -93,12 +117,12 @@ function extractGradeData() {
           colHeadings.push(headings);
      }
 
-     colHeadings.forEach(function(arr) {
-          arr.forEach(function(h) {
-               console.log(h);
-          });
-          console.log("----");
-     });
+     // colHeadings.forEach(function(arr) {
+     //      arr.forEach(function(h) {
+     //           console.log(h);
+     //      });
+     //      console.log("----");
+     // });
 
 
      // Store assignment categories
@@ -172,10 +196,11 @@ function extractGradeData() {
           }
      }
      
-     assignments.forEach(function(assignment) {
-          console.log(assignment[0] + ":\n\t" + assignment[1] + "\n\t" + assignment[2] + "\n\t" + assignment[3]);
-     });
+     // assignments.forEach(function(assignment) {
+     //      console.log(assignment[0] + ":\n\t" + assignment[1] + "\n\t" + assignment[2] + "\n\t" + assignment[3]);
+     // });
      setAssignments(assignments);
+     createAssignmentObjects();
 }
 
 function showGradeData() {
@@ -226,11 +251,20 @@ function showGradeData() {
 function createAssignmentObjects() {
      assignments = getAssignments();
      assignmentObjects = [];
+     year1 = mpStartDate.getFullYear();
+     year2 = mpEndDate.getFullYear();
      for (var i = 0; i < assignments.length; i++) {
+          // Create date object for assignment date
+          var day = parseInt(assignments[i][2].substring(assignments[i][2].indexOf("/")+1));
+          var month = parseInt(assignments[i][2].substring(0,assignments[i][2].indexOf("/"))) - 1;
+          var year = parseInt(year1 == year2 ? year1 : (month > 7 ? year1 : year2)); 
+          var assignmentDate = new Date(year,month,day);
+          // Create Assignment object
           var Assignment = {
                name: assignments[i][0],
-               grade: assignments[i][1],
-               date: assignments[i][2],
+               pointsReceived: parseFloat(assignments[i][1].substring(0,assignments[i][1].indexOf("/"))),
+               pointsWorth: parseFloat(assignments[i][1].substring(assignments[i][1].indexOf("/")+1)),
+               date: assignmentDate,
                category: assignments[i][3]
           };
           assignmentObjects.push(Assignment);
