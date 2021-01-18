@@ -29,6 +29,7 @@ function removeUnnecessaryHeaders() {
 }
 
 var assignmentList = [];
+var assignmentObjectList = [];
 var categoryList = [];
 
 function getAssignments() {
@@ -37,11 +38,17 @@ function getAssignments() {
 function setAssignments(newAssignments) {
      assignmentList = newAssignments;
 }
+function getAssignmentObjs() {
+     return assignmentObjectList;
+}
+function setAssignmentObjs(newAssignmentObjs) {
+     assignmentObjectList = newAssignmentObjs;
+}
 function getCategories() {
      return categoryList;
 }
-function setCategories(newAssignments) {
-     categoryList = newAssignments;
+function setCategories(newCategories) {
+     categoryList = newCategories;
 }
 
 
@@ -214,4 +221,19 @@ function showGradeData() {
      dataTbl.appendChild(tbdy);
      dataDiv.appendChild(dataTbl);
      mainTable.appendChild(dataDiv);
+}
+
+function createAssignmentObjects() {
+     assignments = getAssignments();
+     assignmentObjects = [];
+     for (var i = 0; i < assignments.length; i++) {
+          var Assignment = {
+               name: assignments[i][0],
+               grade: assignments[i][1],
+               date: assignments[i][2],
+               category: assignments[i][3]
+          };
+          assignmentObjects.push(Assignment);
+     }
+     setAssignmentObjs(assignmentObjects);
 }
